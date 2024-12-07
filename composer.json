@@ -33,13 +33,6 @@
     "scripts": {
         "test": "vendor/bin/phpunit"
     },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Quintenmbusiness\\LaravelTestCore\\LaravelTestCoreServiceProvider"
-            ]
-        }
-    },
     "minimum-stability": "stable",
     "prefer-stable": true
 }

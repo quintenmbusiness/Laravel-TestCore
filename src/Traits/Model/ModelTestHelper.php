@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 trait ModelTestHelper
 {
     /**
-     * The model class to be tested.
+     * Get the model class being tested.
      *
-     * @var string
+     * @return string
      */
-    protected string $modelClass;
+    abstract protected function getModelClass(): string;
 
     /**
      * Get an instance of the model.
@@ -20,7 +20,7 @@ trait ModelTestHelper
      */
     protected function getModelInstance(): Model
     {
-        return new $this->modelClass();
+        return new ($this->getModelClass());
     }
 
     /**
@@ -30,18 +30,19 @@ trait ModelTestHelper
      */
     public function assertFactoryCreatesModel(): void
     {
-        $model = $this->modelClass::factory()->create();
+        $modelClass = $this->getModelClass();
+        $model = $modelClass::factory()->create();
 
         $this->assertInstanceOf(
             Model::class,
             $model,
-            "Failed asserting that the model factory for [{$this->modelClass}] creates a valid instance."
+            "Failed asserting that the model factory for [{$modelClass}] creates a valid instance."
         );
 
         $this->assertDatabaseHas(
             $model->getTable(),
             ['id' => $model->id],
-            "Failed asserting that the model [{$this->modelClass}] with ID [{$model->id}] exists in the database."
+            "Failed asserting that the model [{$modelClass}] with ID [{$model->id}] exists in the database."
         );
     }
 
@@ -52,30 +53,14 @@ trait ModelTestHelper
      */
     public function assertModelSoftDeletes(): void
     {
-        $model = $this->modelClass::factory()->create();
+        $modelClass = $this->getModelClass();
+        $model = $modelClass::factory()->create();
 
         $model->delete();
 
         $this->assertSoftDeleted(
             $model,
-            "Failed asserting that the model [{$this->modelClass}] with ID [{$model->id}] is soft deleted."
-        );
-    }
-
-    /**
-     * Assert that the model has the specified fillable attributes.
-     *
-     * @param array $expectedFillable
-     * @return void
-     */
-    public function assertModelFillableAttributes(array $expectedFillable): void
-    {
-        $model = $this->getModelInstance();
-        $this->assertEquals(
-            $expectedFillable,
-            $model->getFillable(),
-            "Failed asserting that the model [{$this->modelClass}] has the expected fillable attributes. " .
-            "Expected: " . json_encode($expectedFillable) . " but found: " . json_encode($model->getFillable())
+            "Failed asserting that the model [{$modelClass}] with ID [{$model->id}] is soft deleted."
         );
     }
 }
